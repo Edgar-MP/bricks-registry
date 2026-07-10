@@ -1,0 +1,18 @@
+{
+  "$schema": "./registry.schema.json",
+  "blocks": {
+    "hero": {
+      "kind": "block",
+      "version": "1.0.0",
+      "description": "Cabecera de página: título, subtítulo, imagen de fondo y CTA.",
+      "category": "cabeceras",
+      "files": [
+        { "from": "blocks/hero/schema.ts", "to": "packages/schema/src/blocks/hero.ts" },
+        {
+          "from": "blocks/hero/HeroBlock.astro",
+          "to": "apps/front/src/components/blocks/HeroBlock.astro"
+        }
+      ]
+    }
+  }
+}

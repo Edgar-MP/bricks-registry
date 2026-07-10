@@ -1,0 +1,87 @@
+---
+import type { HydratedHeroBlock } from '@/lib/content'
+import Button from '@/components/ui/Button.astro'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+
+type Props = Omit<HydratedHeroBlock, '_uid' | 'type'>
+
+const { title, subtitle, image, ctaLabel, cta, variant } = Astro.props
+const newTab = cta?.target === 'new-tab'
+
+// Objeto condicional en vez de ramas de clase BEM (mandato de la tarea 7):
+// centered = imagen de fondo con overlay + texto centrado encima;
+// split = imagen y texto en columnas iguales (se apilan en móvil).
+const layout = {
+  centered:
+    'relative flex min-h-[28rem] items-center justify-center overflow-hidden rounded-card bg-surface-alt px-6 py-section text-center',
+  split: 'grid grid-cols-1 items-center gap-8 rounded-card bg-surface-alt md:grid-cols-2',
+}[variant]
+
+const bodyLayout = {
+  centered:
+    'relative z-10 mx-auto flex max-w-2xl flex-col items-center gap-4 text-primary-contrast',
+  split: 'flex flex-col gap-4 px-6 py-section md:px-10',
+}[variant]
+---
+
+<section class={layout}>
+  {
+    image && variant === 'centered' && (
+      <OptimizedImage
+        data-media-field="image"
+        class="absolute inset-0 h-full w-full object-cover brightness-50"
+        image={image}
+        eager
+        sizes="100vw"
+      />
+    )
+  }
+  {
+    image && variant === 'split' && (
+      <OptimizedImage
+        data-media-field="image"
+        class="h-64 w-full rounded-card object-cover md:h-full"
+        image={image}
+        eager
+        sizes="(min-width: 768px) 50vw, 100vw"
+      />
+    )
+  }
+  <div class={bodyLayout}>
+    {
+      /* data-field: textos simples editables inline desde el preview (el
+            bridge los hace contenteditable; en producción es un atributo
+            inerte de pocos bytes) */
+    }
+    <h2 data-field="title" class="typo-hero text-balance">{title}</h2>
+    {
+      subtitle && (
+        <p
+          data-field="subtitle"
+          class={
+            variant === 'centered'
+              ? 'typo-body-lg text-primary-contrast/90'
+              : 'typo-body-lg text-text-muted'
+          }
+        >
+          {subtitle}
+        </p>
+      )
+    }
+    {
+      ctaLabel && cta?.url && (
+        <Button
+          class="mt-2"
+          variant="primary"
+          size="lg"
+          href={cta.url}
+          data-field="ctaLabel"
+          target={newTab ? '_blank' : undefined}
+          rel={newTab ? 'noopener noreferrer' : undefined}
+        >
+          {ctaLabel}
+        </Button>
+      )
+    }
+  </div>
+</section>

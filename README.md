@@ -36,6 +36,14 @@ Sin autenticación (repo público).
 2. Añadir la entrada en `registry.json` (validar contra `registry.schema.json`).
 3. Publicar un tag git.
 
+**Requisito para el auto-registro:** `bricks add` completa el registro en el
+proyecto destino automáticamente (por defecto — `--manual` lo desactiva). Para
+que funcione, `schema.ts` **debe exportar** `{nombre}Block`, `{nombre}Migrations`
+(aunque sea `{}` vacío) y `{nombre}Sample`, con `{nombre}` = el tipo en
+camelCase (`tabs` → `tabsBlock`/`tabsMigrations`/`tabsSample`; `file-download` →
+`fileDownloadBlock`/…). Si no se sigue la convención, la validación posterior
+falla y el CLI cae al registro manual sin dejar el proyecto destino roto.
+
 ## Modelo copy-and-own
 
 Instalar un bloque (`bricks add <nombre>`) copia sus ficheros al proyecto

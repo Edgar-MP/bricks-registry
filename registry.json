@@ -13,6 +13,19 @@
           "to": "apps/front/src/components/blocks/HeroBlock.astro"
         }
       ]
+    },
+    "tabs": {
+      "kind": "block",
+      "version": "1.0.0",
+      "description": "Pestañas con contenido richtext por pestaña, variantes underline/pill.",
+      "category": "interactivos",
+      "files": [
+        { "from": "blocks/tabs/schema.ts", "to": "packages/schema/src/blocks/tabs.ts" },
+        {
+          "from": "blocks/tabs/TabsBlock.astro",
+          "to": "apps/front/src/components/blocks/TabsBlock.astro"
+        }
+      ]
     }
   }
 }

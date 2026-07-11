@@ -1,0 +1,71 @@
+---
+// VENDORIZADO desde bricks-cms/apps/front/src/components/ui/Button.astro —
+// copia manual, sin sync automático; volver a copiar a mano si cambia el
+// original.
+import type { HTMLAttributes } from 'astro/types'
+
+// Botón polimórfico: renderiza <a> si hay `href`, si no <button>. Encapsula las
+// variantes/tamaños con tokens del design system (nunca valores crudos) y el
+// foco accesible (:focus-visible con --color-focus, que hoy faltaba en todo el
+// front). Las variantes hover usan los tokens -hover (adiós al hover:opacity-90
+// inconsistente). CONTRATO preview-bridge: `...rest` reenvía data-field/target/
+// rel/aria-* al tag final, y el texto va como hijo directo del <slot/> (sin
+// iconos que ensucien textContent en los CTA editables inline).
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'type'> {
+  variant?: Variant
+  size?: Size
+  href?: string
+  type?: 'button' | 'submit' | 'reset'
+  disabled?: boolean
+  class?: string
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  disabled = false,
+  class: className,
+  ...rest
+} = Astro.props
+
+const Tag = href ? 'a' : 'button'
+
+const base =
+  'inline-flex items-center justify-center gap-2 rounded-button font-medium ' +
+  'transition-[background-color,box-shadow,opacity] cursor-pointer ' +
+  'disabled:pointer-events-none disabled:opacity-50 ' +
+  'aria-disabled:pointer-events-none aria-disabled:opacity-50'
+
+const sizes: Record<Size, string> = {
+  sm: 'px-3 py-1.5 typo-small',
+  md: 'px-4 py-2',
+  lg: 'px-6 py-3 typo-body-lg',
+}
+
+const variants: Record<Variant, string> = {
+  primary: 'bg-primary text-primary-contrast hover:bg-primary-hover active:bg-primary-active',
+  secondary: 'bg-surface text-text border border-border hover:bg-surface-alt',
+  ghost: 'bg-transparent text-text hover:bg-surface-alt',
+  danger: 'bg-danger text-danger-fg hover:bg-danger-hover',
+  // `link` ignora padding de tamaño: es texto, no caja.
+  link: 'bg-transparent p-0 text-link underline underline-offset-2 hover:text-link-hover',
+}
+
+const isLink = variant === 'link'
+---
+
+<Tag
+  class:list={[base, !isLink && sizes[size], variants[variant], className]}
+  href={href}
+  type={href ? undefined : type}
+  aria-disabled={disabled && href ? 'true' : undefined}
+  disabled={!href && disabled ? true : undefined}
+  {...rest}
+>
+  <slot />
+</Tag>

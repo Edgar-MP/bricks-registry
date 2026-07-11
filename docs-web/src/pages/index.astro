@@ -1,0 +1,37 @@
+---
+import DocsLayout from '../layouts/DocsLayout.astro'
+import Badge from '../components/Badge.astro'
+import { listBlocks } from '../lib/registry.ts'
+
+const blocks = listBlocks().sort(([a], [b]) => a.localeCompare(b))
+---
+
+<DocsLayout title="bricks-registry — bloques">
+  <h1 class="typo-h1">Bloques disponibles</h1>
+  <p class="typo-body mt-2 text-text-muted">
+    Catálogo de bloques instalables con <code class="typo-code">bricks add &lt;nombre&gt;</code>.
+    Cada página muestra un preview en vivo, sus variantes, el código fuente y sus campos.
+  </p>
+
+  <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    {
+      blocks.map(([name, block]) => (
+        <li>
+          <a
+            href={`/blocks/${name}/`}
+            class="block rounded-xl border border-border bg-surface p-4 transition-all hover:border-primary/30 hover:shadow-card"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <strong class="typo-body">{name}</strong>
+              <div class="flex items-center gap-1.5">
+                <Badge variant="neutral">{block.category}</Badge>
+                <Badge variant="primary">v{block.version}</Badge>
+              </div>
+            </div>
+            <p class="typo-small mt-1.5">{block.description}</p>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</DocsLayout>

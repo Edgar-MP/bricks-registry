@@ -1,0 +1,180 @@
+---
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+import DocsLayout from '../../layouts/DocsLayout.astro'
+import Badge from '../../components/Badge.astro'
+import BrowserFrame from '../../components/BrowserFrame.astro'
+import { listBlocks } from '../../lib/registry.ts'
+import { deriveNames } from '../../lib/derive-names.ts'
+import { hydrateSample } from '../../lib/hydrate.ts'
+import { blockFieldsFor } from '@/schema/introspect.ts'
+import { blockSamples } from '@/schema/blocks/index.ts'
+import type { FieldInfo } from '@/schema/introspect.ts'
+
+export function getStaticPaths() {
+  return listBlocks().map(([name, block]) => ({ params: { name }, props: { block } }))
+}
+
+const { name } = Astro.params as { name: string }
+const { block } = Astro.props as { block: ReturnType<typeof listBlocks>[number][1] }
+const { pascal } = deriveNames(name)
+
+const fields = blockFieldsFor(name)
+const baseSample = blockSamples[name] as Record<string, unknown>
+
+// Selector de variantes: cualquier campo `widget: 'select'` con enum (hoy
+// siempre se llama `variant`, pero no se asume el nombre — ver introspect.ts).
+const variantField = fields.find((f) => f.widget === 'select' && f.enumOptions != null)
+const variantValues = variantField?.enumOptions ?? [null]
+
+// El componente generado (.generated/components/blocks/*.astro) se resuelve
+// por glob porque el nombre depende del bloque de la ruta actual — no hay un
+// import estático fijo posible aquí.
+const blockModules = import.meta.glob('../../../.generated/components/blocks/*.astro', {
+  eager: true,
+}) as Record<string, { default: unknown }>
+const componentEntry = Object.entries(blockModules).find(([modPath]) =>
+  modPath.endsWith(`/${pascal}Block.astro`),
+)
+if (!componentEntry) throw new Error(`no se encontró el componente generado de '${name}'`)
+const BlockComponent = componentEntry[1].default as any
+
+// Código fuente real para el panel "ver código" del BrowserFrame — se lee del
+// mismo fichero generado (build time, node:fs), no hardcodeado.
+const here = path.dirname(fileURLToPath(import.meta.url))
+const sourcePath = path.join(here, '../../../.generated/components/blocks', `${pascal}Block.astro`)
+const source = readFileSync(sourcePath, 'utf8')
+
+const command = `bricks add ${name}`
+---
+
+<DocsLayout title={`${name} — bricks-registry`}>
+  <p class="typo-small">
+    <a href="/" class="hover:text-primary">&larr; Todos los bloques</a>
+  </p>
+  <div class="mt-2 flex flex-wrap items-center gap-2">
+    <h1 class="typo-h1">{name}</h1>
+    <Badge variant="primary">v{block.version}</Badge>
+    <Badge variant="neutral">{block.category}</Badge>
+  </div>
+  <p class="typo-body mt-2 text-text-muted">{block.description}</p>
+
+  <div class="mt-4 flex max-w-md items-center gap-2 rounded-lg bg-surface-alt px-3 py-2">
+    <code class="typo-code flex-1">{command}</code>
+    <button id="copy-command" type="button" class="typo-small rounded-md px-2 py-1 hover:bg-surface">
+      Copiar
+    </button>
+  </div>
+
+  <section class="mt-8">
+    {
+      variantField && (
+        <div role="tablist" class="mb-3 flex gap-2">
+          {variantValues.map((value, i) => (
+            <button
+              type="button"
+              data-variant-button={value}
+              aria-selected={i === 0}
+              class="typo-small rounded-md border border-border px-3 py-1 aria-selected:border-primary/30 aria-selected:bg-primary/5 aria-selected:font-semibold aria-selected:text-primary"
+            >
+              {value}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    <BrowserFrame url={`bricks-registry/blocks/${name}`} code={source}>
+      {
+        variantValues.map((value, i) => {
+          const sample = value ? { ...baseSample, [variantField!.name]: value } : baseSample
+          const hydrated = hydrateSample(sample, fields)
+          return (
+            <div data-variant-panel={value ?? 'default'} hidden={i !== 0}>
+              <BlockComponent {...hydrated} />
+            </div>
+          )
+        })
+      }
+    </BrowserFrame>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="typo-h3">Campos</h2>
+    <div class="mt-4 overflow-hidden rounded-xl border border-border">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="border-b border-border bg-surface-alt text-left">
+            <th class="typo-small px-4 py-2 font-semibold">Campo</th>
+            <th class="typo-small px-4 py-2 font-semibold">Etiqueta</th>
+            <th class="typo-small px-4 py-2 font-semibold">Widget</th>
+            <th class="typo-small px-4 py-2 font-semibold">Localizado</th>
+            <th class="typo-small px-4 py-2 font-semibold">Opcional</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            fields.map((field) => (
+              <>
+                <tr class="border-b border-border">
+                  <td class="typo-small px-4 py-2">
+                    <code class="typo-code">{field.name}</code>
+                  </td>
+                  <td class="typo-small px-4 py-2">{field.label}</td>
+                  <td class="typo-small px-4 py-2">{field.widget}</td>
+                  <td class="typo-small px-4 py-2">{field.localized ? 'sí' : 'no'}</td>
+                  <td class="typo-small px-4 py-2">{field.optional ? 'sí' : 'no'}</td>
+                </tr>
+                {field.itemFields &&
+                  field.itemFields.map((item) => (
+                    <tr class="border-b border-border">
+                      <td class="typo-small px-4 py-2 pl-8">
+                        <code class="typo-code">
+                          {field.name}[].{item.name}
+                        </code>
+                      </td>
+                      <td class="typo-small px-4 py-2">{item.label}</td>
+                      <td class="typo-small px-4 py-2">{item.widget}</td>
+                      <td class="typo-small px-4 py-2">{item.localized ? 'sí' : 'no'}</td>
+                      <td class="typo-small px-4 py-2">{item.optional ? 'sí' : 'no'}</td>
+                    </tr>
+                  ))}
+              </>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</DocsLayout>
+
+<script>
+  // Selector de variantes: pre-renderizado estático, solo alterna
+  // visibilidad — cero JS de framework (mismo espíritu que TabsBlock.astro).
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-variant-button]')
+  const panels = document.querySelectorAll<HTMLElement>('[data-variant-panel]')
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const value = button.dataset.variantButton
+      buttons.forEach((b) => b.setAttribute('aria-selected', String(b === button)))
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.variantPanel !== value
+      })
+    })
+  })
+
+  const copyButton = document.getElementById('copy-command')
+  copyButton?.addEventListener('click', async () => {
+    const command = copyButton.previousElementSibling?.textContent ?? ''
+    try {
+      await navigator.clipboard.writeText(command)
+      copyButton.textContent = '¡Copiado!'
+      setTimeout(() => (copyButton.textContent = 'Copiar'), 1500)
+    } catch {
+      // Portapapeles no disponible (http sin TLS, permiso denegado…): el
+      // comando ya está visible en texto plano, no hace falta más.
+    }
+  })
+</script>

@@ -1,0 +1,28 @@
+---
+// Inspirado en DocBadge.astro de ~/projects/astro-components, simplificado a
+// las variantes que realmente usa docs-web (versión/categoría del bloque) —
+// sin los estados beta/deprecated/experimental, que no existen en el modelo
+// de datos de registry.json.
+interface Props {
+  variant?: 'primary' | 'neutral' | 'success'
+  class?: string
+}
+
+const { variant = 'neutral', class: className } = Astro.props
+
+const variants = {
+  primary: 'bg-primary/10 text-primary ring-primary/20',
+  neutral: 'bg-surface-alt text-text-muted ring-border',
+  success: 'bg-success/10 text-success ring-success/20',
+}
+---
+
+<span
+  class:list={[
+    'inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ring-1',
+    variants[variant],
+    className,
+  ]}
+>
+  <slot />
+</span>

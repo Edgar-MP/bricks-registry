@@ -1,0 +1,77 @@
+---
+// VENDORIZADO desde bricks-cms/apps/front/src/components/richtext/RichText.astro
+// — copia manual, sin sync automático; volver a copiar a mano si cambia el
+// original.
+import type { TextBlock } from '@bricks/schema'
+import MarkedText from './MarkedText.astro'
+
+// Resolver recursivo de rich text (decisión 19): recorre el árbol JSON de
+// TipTap y mapea cada TIPO DE NODO a cómo se pinta — el mismo patrón que el
+// resolver de bloques, un nivel más abajo. Fallback defensivo: un nodo
+// desconocido pinta sus hijos (nunca rompe la página, decisión 15).
+type RichTextNode = TextBlock['content']
+
+interface Props {
+  node: RichTextNode
+}
+
+const { node } = Astro.props
+const Self = Astro.self
+const children = node.content ?? []
+// Nivel de heading acotado: dentro de una página el h1 es del título de la
+// entrada; el rich text empieza en h2.
+const headingLevel = Math.min(Math.max(Number(node.attrs?.level ?? 2), 2), 4)
+const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4'
+---
+
+{
+  node.type === 'text' ? (
+    <MarkedText text={node.text ?? ''} marks={node.marks ?? []} />
+  ) : node.type === 'paragraph' ? (
+    <p>
+      {children.map((child) => (
+        <Self node={child} />
+      ))}
+    </p>
+  ) : node.type === 'heading' ? (
+    <Heading>
+      {children.map((child) => (
+        <Self node={child} />
+      ))}
+    </Heading>
+  ) : node.type === 'bulletList' ? (
+    <ul>
+      {children.map((child) => (
+        <Self node={child} />
+      ))}
+    </ul>
+  ) : node.type === 'orderedList' ? (
+    <ol>
+      {children.map((child) => (
+        <Self node={child} />
+      ))}
+    </ol>
+  ) : node.type === 'listItem' ? (
+    <li>
+      {children.map((child) => (
+        <Self node={child} />
+      ))}
+    </li>
+  ) : node.type === 'blockquote' ? (
+    <blockquote>
+      {children.map((child) => (
+        <Self node={child} />
+      ))}
+    </blockquote>
+  ) : node.type === 'codeBlock' ? (
+    <pre>
+      <code>{children.map((child) => child.text ?? '').join('')}</code>
+    </pre>
+  ) : node.type === 'horizontalRule' ? (
+    <hr />
+  ) : node.type === 'hardBreak' ? (
+    <br />
+  ) : (
+    children.map((child) => <Self node={child} />)
+  )
+}

@@ -1,0 +1,55 @@
+---
+// VENDORIZADO desde bricks-cms/apps/front/src/components/richtext/MarkedText.astro
+// — copia manual, sin sync automático; volver a copiar a mano si cambia el
+// original.
+//
+// Pinta un nodo de texto envuelto en sus marcas (bold, italic, link, code…),
+// aplicándolas de fuera hacia dentro por recursión (Astro.self). El front
+// decide el markup de cada marca — nunca HTML crudo del editor (decisión 19).
+interface Mark {
+  type: string
+  attrs?: Record<string, unknown>
+}
+
+interface Props {
+  text: string
+  marks: Mark[]
+}
+
+const { text, marks } = Astro.props
+const [mark, ...rest] = marks
+const Self = Astro.self
+---
+
+{
+  !mark ? (
+    text
+  ) : mark.type === 'bold' ? (
+    <strong>
+      <Self text={text} marks={rest} />
+    </strong>
+  ) : mark.type === 'italic' ? (
+    <em>
+      <Self text={text} marks={rest} />
+    </em>
+  ) : mark.type === 'strike' ? (
+    <s>
+      <Self text={text} marks={rest} />
+    </s>
+  ) : mark.type === 'underline' ? (
+    <u>
+      <Self text={text} marks={rest} />
+    </u>
+  ) : mark.type === 'code' ? (
+    <code>
+      <Self text={text} marks={rest} />
+    </code>
+  ) : mark.type === 'link' ? (
+    <a href={String(mark.attrs?.href ?? '#')} rel="noopener">
+      <Self text={text} marks={rest} />
+    </a>
+  ) : (
+    // Marca que este front no conoce: se ignora la marca, no el texto.
+    <Self text={text} marks={rest} />
+  )
+}

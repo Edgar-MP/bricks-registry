@@ -1,0 +1,75 @@
+---
+// Versión simplificada de BrowserFrame.astro de ~/projects/astro-components:
+// solo el chrome visual + panel de código colapsable (transición CSS pura,
+// grid-rows 0fr→1fr, sin JS de altura). Sin selector de device/container —
+// fuera de alcance de esta iteración (ver docs/plans/fase-L.md, tarea 69).
+import { Code } from 'astro-expressive-code/components'
+import CodeIcon from '../icons/Code.astro'
+
+interface Props {
+  url: string
+  code?: string
+}
+
+const { url, code } = Astro.props
+---
+
+<div class="browser-frame overflow-hidden rounded-xl border border-border shadow-card">
+  <div class="flex items-center gap-4 border-b border-border bg-surface-alt/50 px-4 py-3">
+    <div class="hidden shrink-0 gap-1.5 sm:flex">
+      <div class="h-3 w-3 rounded-full bg-[#FF5F56]"></div>
+      <div class="h-3 w-3 rounded-full bg-[#FFBD2E]"></div>
+      <div class="h-3 w-3 rounded-full bg-[#27C93F]"></div>
+    </div>
+    <div class="flex-1 rounded-md border border-border bg-surface px-3 py-1">
+      <span class="typo-small truncate opacity-70 select-none">{url}</span>
+    </div>
+    {
+      code && (
+        <button
+          type="button"
+          data-code-toggle
+          title="Ver código"
+          class="flex shrink-0 items-center justify-center rounded-lg border border-border bg-surface p-1.5 text-text-muted transition-colors hover:bg-surface-alt hover:text-primary"
+        >
+          <CodeIcon class="h-4 w-4" />
+        </button>
+      )
+    }
+  </div>
+
+  <div class="browser-stage bg-surface">
+    <slot />
+  </div>
+
+  {
+    code && (
+      <div class="code-panel grid grid-rows-[0fr] border-t border-border transition-all duration-300 ease-in-out" data-code-panel>
+        <div class="overflow-hidden">
+          <div class="bg-surface-alt p-4 text-xs">
+            <Code code={code} lang="astro" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+</div>
+
+<script>
+  function setupBrowserFrames() {
+    document.querySelectorAll('.browser-frame').forEach((frame) => {
+      if (frame.hasAttribute('data-initialized')) return
+      frame.setAttribute('data-initialized', 'true')
+
+      const toggle = frame.querySelector('[data-code-toggle]')
+      const panel = frame.querySelector('[data-code-panel]')
+      toggle?.addEventListener('click', () => {
+        const isOpen = panel?.classList.contains('grid-rows-[1fr]')
+        panel?.classList.toggle('grid-rows-[1fr]', !isOpen)
+        panel?.classList.toggle('grid-rows-[0fr]', isOpen)
+      })
+    })
+  }
+
+  setupBrowserFrames()
+</script>

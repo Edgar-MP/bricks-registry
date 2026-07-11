@@ -1,0 +1,141 @@
+---
+// Lista plana y alfabética por bloque (nombre real como entrada, sin agrupar
+// por `category`) — más cercano a shadcn/ui, que no agrupa sus componentes
+// en categorías funcionales. La categoría sigue existiendo como dato (se ve
+// como texto discreto aquí y como Badge en la página del bloque), solo se
+// quitó de la navegación. Generado desde registry.json — añadir un bloque
+// debe hacerlo aparecer aquí solo, sin tocar nada de docs-web/.
+import Search from '../icons/Search.astro'
+import Close from '../icons/Close.astro'
+import { listBlocks } from '../lib/registry.ts'
+
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
+const blocks = listBlocks().sort(([a], [b]) => a.localeCompare(b))
+
+function isActive(name: string) {
+  return pathname === `/blocks/${name}`
+}
+
+function displayName(name: string) {
+  return name.charAt(0).toUpperCase() + name.slice(1)
+}
+---
+
+<aside
+  id="docs-sidebar"
+  class="fixed top-16 left-0 z-40 hidden h-[calc(100vh-4rem)] w-64 flex-col overflow-y-auto border-r border-border bg-surface-alt/60 backdrop-blur-sm lg:flex"
+>
+  <div class="p-4 pb-0">
+    <div class="relative">
+      <Search
+        class="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-text-muted opacity-60"
+      />
+      <input
+        type="text"
+        id="sidebar-filter"
+        placeholder="Filtrar bloques…"
+        class="w-full rounded-md border border-border bg-surface py-1.5 pr-3 pl-9 text-xs text-text placeholder:text-text-muted/60 focus:ring-2 focus:ring-primary/20 focus:outline-none"
+      />
+    </div>
+  </div>
+
+  <nav class="flex-1 p-4">
+    <ul class="space-y-0.5" id="sidebar-nav-list">
+      {
+        blocks.map(([name, block]) => (
+          <li data-nav-item>
+            <a
+              href={`/blocks/${name}/`}
+              class:list={[
+                'flex items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors',
+                isActive(name)
+                  ? 'bg-primary/5 font-semibold text-primary ring-1 ring-primary/20'
+                  : 'text-text-muted hover:bg-surface hover:text-text',
+              ]}
+            >
+              <span>{displayName(name)}</span>
+              <span class="text-xs text-text-muted/70">{block.category}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</aside>
+
+<!-- Drawer mobile -->
+<div id="docs-sidebar-overlay" class="fixed inset-0 z-30 hidden bg-black/40 lg:hidden"></div>
+<aside
+  id="docs-sidebar-mobile"
+  class="fixed top-0 left-0 z-40 flex h-screen w-64 -translate-x-full flex-col border-r border-border bg-surface-alt transition-transform duration-200 lg:hidden"
+>
+  <div class="flex items-center justify-between border-b border-border px-4 py-4">
+    <span class="typo-body font-semibold">bricks-registry</span>
+    <button
+      id="docs-sidebar-close"
+      class="rounded-lg p-2 text-text-muted hover:bg-surface"
+      aria-label="Cerrar menú"
+    >
+      <Close class="h-5 w-5" />
+    </button>
+  </div>
+  <nav class="flex-1 overflow-y-auto p-4">
+    <ul class="space-y-0.5">
+      {
+        blocks.map(([name, block]) => (
+          <li>
+            <a
+              href={`/blocks/${name}/`}
+              class:list={[
+                'flex items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors',
+                isActive(name)
+                  ? 'bg-primary/5 font-semibold text-primary ring-1 ring-primary/20'
+                  : 'text-text-muted hover:bg-surface hover:text-text',
+              ]}
+            >
+              <span>{displayName(name)}</span>
+              <span class="text-xs text-text-muted/70">{block.category}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</aside>
+
+<script>
+  function setupFilter() {
+    const input = document.getElementById('sidebar-filter') as HTMLInputElement | null
+    const items = document.querySelectorAll<HTMLElement>('#sidebar-nav-list > [data-nav-item]')
+    input?.addEventListener('input', () => {
+      const value = input.value.toLowerCase()
+      items.forEach((item) => {
+        const matches = (item.textContent ?? '').toLowerCase().includes(value)
+        item.style.display = matches ? '' : 'none'
+      })
+    })
+  }
+
+  function setupMobileDrawer() {
+    const drawer = document.getElementById('docs-sidebar-mobile')
+    const overlay = document.getElementById('docs-sidebar-overlay')
+    const openButton = document.getElementById('mobile-menu-button')
+    const closeButton = document.getElementById('docs-sidebar-close')
+
+    function open() {
+      drawer?.classList.remove('-translate-x-full')
+      overlay?.classList.remove('hidden')
+    }
+    function close() {
+      drawer?.classList.add('-translate-x-full')
+      overlay?.classList.add('hidden')
+    }
+
+    openButton?.addEventListener('click', open)
+    closeButton?.addEventListener('click', close)
+    overlay?.addEventListener('click', close)
+  }
+
+  setupFilter()
+  setupMobileDrawer()
+</script>

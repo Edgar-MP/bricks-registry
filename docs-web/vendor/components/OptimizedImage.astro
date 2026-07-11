@@ -1,0 +1,60 @@
+---
+// VENDORIZADO desde bricks-cms/apps/front/src/components/OptimizedImage.astro
+// — copia manual, sin sync automático; volver a copiar a mano si cambia el
+// original.
+import type { HydratedAsset } from '@bricks/schema'
+
+// Componente de la tarea 44: envuelve un asset hidratado y sirve AVIF/WebP
+// con srcset por ancho, cayendo al original si el asset no tiene variantes
+// (SVG, gif animado, o pendiente de backfill de la tarea 43). Una sola fuente
+// de optimización (la API); este componente solo compone el <picture>.
+interface Props {
+  image: HydratedAsset
+  sizes: string
+  eager?: boolean
+  class?: string
+  [attr: string]: unknown
+}
+
+const { image, sizes, eager = false, class: className, ...rest } = Astro.props
+
+function srcset(map: Record<string, string> | undefined): string | null {
+  if (!map) return null
+  const entries = Object.entries(map)
+  if (entries.length === 0) return null
+  return entries.map(([width, url]) => `${url} ${width}w`).join(', ')
+}
+
+const avifSrcset = srcset(image.variants?.avif)
+const webpSrcset = srcset(image.variants?.webp)
+---
+
+{
+  avifSrcset || webpSrcset ? (
+    <picture>
+      {avifSrcset && <source type="image/avif" srcset={avifSrcset} sizes={sizes} />}
+      {webpSrcset && <source type="image/webp" srcset={webpSrcset} sizes={sizes} />}
+      <img
+        class={className}
+        src={image.url}
+        alt={image.alt ?? ''}
+        width={image.width ?? undefined}
+        height={image.height ?? undefined}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        {...rest}
+      />
+    </picture>
+  ) : (
+    <img
+      class={className}
+      src={image.url}
+      alt={image.alt ?? ''}
+      width={image.width ?? undefined}
+      height={image.height ?? undefined}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      {...rest}
+    />
+  )
+}

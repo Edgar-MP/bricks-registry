@@ -26,6 +26,72 @@
           "to": "apps/front/src/components/blocks/TabsBlock.astro"
         }
       ]
+    },
+    "restaurante": {
+      "kind": "pack",
+      "version": "1.0.0",
+      "description": "Vertical de restaurante: cartas, platos y bebidas.",
+      "category": "verticales",
+      "files": [
+        { "from": "packs/restaurante/types/carta.ts", "to": "packages/schema/src/types/carta.ts" },
+        { "from": "packs/restaurante/types/plato.ts", "to": "packages/schema/src/types/plato.ts" },
+        { "from": "packs/restaurante/types/bebida.ts", "to": "packages/schema/src/types/bebida.ts" },
+        {
+          "from": "packs/restaurante/blocks/carta-embed.ts",
+          "to": "packages/schema/src/blocks/carta-embed.ts"
+        },
+        {
+          "from": "packs/restaurante/blocks/CartaEmbedBlock.astro",
+          "to": "apps/front/src/components/blocks/CartaEmbedBlock.astro"
+        },
+        {
+          "from": "packs/restaurante/blocks/menu-platos.ts",
+          "to": "packages/schema/src/blocks/menu-platos.ts"
+        },
+        {
+          "from": "packs/restaurante/blocks/MenuPlatosBlock.astro",
+          "to": "apps/front/src/components/blocks/MenuPlatosBlock.astro"
+        },
+        {
+          "from": "packs/restaurante/blocks/menu-bebidas.ts",
+          "to": "packages/schema/src/blocks/menu-bebidas.ts"
+        },
+        {
+          "from": "packs/restaurante/blocks/MenuBebidasBlock.astro",
+          "to": "apps/front/src/components/blocks/MenuBebidasBlock.astro"
+        }
+      ],
+      "contentTypes": [
+        {
+          "type": "carta",
+          "schemaModule": "carta",
+          "schemaExport": "cartaSchema",
+          "kind": "collection",
+          "routing": "/carta/:slug",
+          "labelField": "title"
+        },
+        {
+          "type": "plato",
+          "schemaModule": "plato",
+          "schemaExport": "platoSchema",
+          "kind": "collection",
+          "routing": null,
+          "labelField": "nombre"
+        },
+        {
+          "type": "bebida",
+          "schemaModule": "bebida",
+          "schemaExport": "bebidaSchema",
+          "kind": "collection",
+          "routing": null,
+          "labelField": "nombre"
+        }
+      ],
+      "blocks": [
+        { "type": "carta-embed", "description": "Incrusta el resumen de una carta." },
+        { "type": "menu-platos", "description": "Listado de platos por secciones." },
+        { "type": "menu-bebidas", "description": "Listado de bebidas por secciones." }
+      ]
     }
   }
 }

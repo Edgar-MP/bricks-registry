@@ -1,0 +1,43 @@
+---
+import type { HydratedCartaEmbedBlock } from '@/lib/content'
+import Button from '@/components/ui/Button.astro'
+
+type Props = Omit<HydratedCartaEmbedBlock, '_uid' | 'type'>
+
+const { carta, url, ctaLabel } = Astro.props
+
+// Extracto en texto plano del primer bloque `text` de la carta referenciada
+// (si lo hay): la referencia se hidrata a un nivel, así que `carta.blocks`
+// llega tal cual se guardó (sin hidratar más adentro) — nos vale, solo
+// queremos el texto plano para el resumen, no renderizarlo con formato.
+function plainText(node: { text?: string; content?: unknown[] } | undefined): string {
+  if (!node) return ''
+  if (typeof node.text === 'string') return node.text
+  return (node.content ?? [])
+    .map((child) => plainText(child as { text?: string; content?: unknown[] }))
+    .join(' ')
+}
+
+const firstText = carta?.blocks?.find(
+  (block: { type: string }) => block.type === 'text',
+) as { content?: unknown } | undefined
+const excerpt = firstText ? plainText(firstText.content as never).trim().slice(0, 160) : ''
+---
+
+{
+  carta && (
+    <section class="mx-auto max-w-content px-6 py-section" data-reveal>
+      <div class="rounded-card bg-surface-alt p-6">
+        <h3 data-field="carta" class="typo-h3">
+          {carta.title}
+        </h3>
+        {excerpt && <p class="mt-2 text-text-muted">{excerpt}…</p>}
+        {ctaLabel && url && (
+          <Button class="mt-4" variant="primary" data-field="ctaLabel" href={url}>
+            {ctaLabel}
+          </Button>
+        )}
+      </div>
+    </section>
+  )
+}

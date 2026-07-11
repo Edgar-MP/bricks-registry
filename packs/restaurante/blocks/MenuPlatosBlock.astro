@@ -1,0 +1,77 @@
+---
+import type { HydratedMenuPlatosBlock } from '@/lib/content'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+
+type Props = Omit<HydratedMenuPlatosBlock, '_uid' | 'type'>
+
+const { titulo, secciones } = Astro.props
+
+const CURSO_LABEL: Record<string, string> = {
+  entrante: 'Entrante',
+  primero: 'Primero',
+  segundo: 'Segundo',
+  postre: 'Postre',
+}
+
+// Filtrado/tipado aquí, no en la plantilla: dentro de un `{}` JSX, `Foo<Bar>`
+// se confunde con una etiqueta — mismo motivo por el que la plantilla no
+// lleva anotaciones de tipo genéricas.
+const sections = secciones.map((seccion) => ({
+  ...seccion,
+  platos: seccion.platos.filter((plato) => plato !== null),
+}))
+---
+
+<section class="mx-auto max-w-content px-6 py-section" data-reveal>
+  {
+    titulo && (
+      <h2 data-field="titulo" class="typo-h2 mb-6 text-balance">
+        {titulo}
+      </h2>
+    )
+  }
+  <div class="flex flex-col gap-10">
+    {
+      sections.map((seccion) => (
+        <div class="flex flex-col gap-4">
+          {seccion.fotoDestacada && (
+            <OptimizedImage
+              data-media-field="fotoDestacada"
+              class="h-48 w-full rounded-card object-cover"
+              image={seccion.fotoDestacada}
+              sizes="(min-width: 768px) 50vw, 100vw"
+            />
+          )}
+          <h3 class="typo-h3">{seccion.titulo}</h3>
+          <ul class="flex flex-col divide-y divide-border border-t border-b border-border">
+            {seccion.platos.map((plato) => (
+              <li class="flex flex-col gap-1 py-4">
+                <div class="flex items-baseline justify-between gap-4">
+                  <span class="font-medium text-text">
+                    {plato.nombre}{' '}
+                    {plato.curso && (
+                      <span class="text-xs text-text-muted">
+                        ({CURSO_LABEL[plato.curso] ?? plato.curso})
+                      </span>
+                    )}
+                  </span>
+                  {plato.variantesPrecio?.length > 0 && (
+                    <span class="shrink-0 text-sm text-text-muted">
+                      {plato.variantesPrecio
+                        .map((v) => `${v.etiqueta} ${v.precio}€`)
+                        .join(' · ')}
+                    </span>
+                  )}
+                </div>
+                {plato.descripcion && <p class="text-sm text-text-muted">{plato.descripcion}</p>}
+                {plato.alergenos && (
+                  <p class="text-xs text-text-muted italic">Alérgenos: {plato.alergenos}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

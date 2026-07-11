@@ -1,0 +1,73 @@
+---
+import type { HydratedMenuBebidasBlock } from '@/lib/content'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+
+type Props = Omit<HydratedMenuBebidasBlock, '_uid' | 'type'>
+
+const { titulo, secciones } = Astro.props
+
+const CATEGORIA_LABEL: Record<string, string> = {
+  vino: 'Vino',
+  cerveza: 'Cerveza',
+  refresco: 'Refresco',
+  zumo: 'Zumo',
+  agua: 'Agua',
+  cafe: 'Café',
+  coctel: 'Cóctel',
+}
+---
+
+<section class="mx-auto max-w-content px-6 py-section" data-reveal>
+  {
+    titulo && (
+      <h2 data-field="titulo" class="typo-h2 mb-6 text-balance">
+        {titulo}
+      </h2>
+    )
+  }
+  <div class="flex flex-col gap-10">
+    {
+      secciones.map((seccion) => (
+        <div class="flex flex-col gap-4">
+          {seccion.fotoDestacada && (
+            <OptimizedImage
+              data-media-field="fotoDestacada"
+              class="h-48 w-full rounded-card object-cover"
+              image={seccion.fotoDestacada}
+              sizes="(min-width: 768px) 50vw, 100vw"
+            />
+          )}
+          <h3 class="typo-h3">{seccion.titulo}</h3>
+          <ul class="flex flex-col divide-y divide-border border-t border-b border-border">
+            {seccion.bebidas
+              .filter((bebida) => bebida)
+              .map((bebida) => (
+                <li class="flex flex-col gap-1 py-4">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <span class="font-medium text-text">
+                      {bebida.nombre}{' '}
+                      {bebida.categoria && (
+                        <span class="text-xs text-text-muted">
+                          ({CATEGORIA_LABEL[bebida.categoria] ?? bebida.categoria})
+                        </span>
+                      )}
+                    </span>
+                    {bebida.variantesPrecio?.length > 0 && (
+                      <span class="shrink-0 text-sm text-text-muted">
+                        {bebida.variantesPrecio
+                          .map((v: { etiqueta: string; precio: number }) => `${v.etiqueta} ${v.precio}€`)
+                          .join(' · ')}
+                      </span>
+                    )}
+                  </div>
+                  {bebida.descripcion && (
+                    <p class="text-sm text-text-muted">{bebida.descripcion}</p>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

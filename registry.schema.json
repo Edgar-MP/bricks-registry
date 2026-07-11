@@ -17,7 +17,7 @@
             "type": "string",
             "enum": ["block", "pack"],
             "default": "block",
-            "description": "'block' = bloque suelto. 'pack' reservado para paquetes de funcionalidad (tarea 90, no implementado aún)."
+            "description": "'block' = bloque suelto. 'pack' = paquete de funcionalidad (tarea 90): N tipos de contenido + M bloques, ver `contentTypes`/`blocks`."
           },
           "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
           "description": { "type": "string" },
@@ -35,6 +35,39 @@
               "properties": {
                 "from": { "type": "string", "description": "Ruta relativa dentro de este repo." },
                 "to": { "type": "string", "description": "Ruta relativa dentro del proyecto destino." }
+              }
+            }
+          },
+          "contentTypes": {
+            "type": "array",
+            "description": "Solo para kind === 'pack': tipos de contenido que registra, ver packages/cli/docs/PACKS.md.",
+            "items": {
+              "type": "object",
+              "required": ["type", "schemaModule", "schemaExport", "kind", "routing", "labelField"],
+              "additionalProperties": false,
+              "properties": {
+                "type": { "type": "string" },
+                "schemaModule": {
+                  "type": "string",
+                  "description": "Nombre de fichero sin extensión, dentro de packages/schema/src/types/."
+                },
+                "schemaExport": { "type": "string" },
+                "kind": { "type": "string", "enum": ["collection", "single"] },
+                "routing": { "type": ["string", "null"] },
+                "labelField": { "type": "string" }
+              }
+            }
+          },
+          "blocks": {
+            "type": "array",
+            "description": "Solo para kind === 'pack': bloques que registra, ver packages/cli/docs/PACKS.md.",
+            "items": {
+              "type": "object",
+              "required": ["type", "description"],
+              "additionalProperties": false,
+              "properties": {
+                "type": { "type": "string" },
+                "description": { "type": "string" }
               }
             }
           }

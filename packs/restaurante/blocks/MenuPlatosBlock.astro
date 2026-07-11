@@ -12,6 +12,14 @@ const CURSO_LABEL: Record<string, string> = {
   segundo: 'Segundo',
   postre: 'Postre',
 }
+
+// Filtrado/tipado aquí, no en la plantilla: dentro de un `{}` JSX, `Foo<Bar>`
+// se confunde con una etiqueta — mismo motivo por el que la plantilla no
+// lleva anotaciones de tipo genéricas.
+const sections = secciones.map((seccion) => ({
+  ...seccion,
+  platos: seccion.platos.filter((plato) => plato !== null),
+}))
 ---
 
 <section class="mx-auto max-w-content px-6 py-section" data-reveal>
@@ -24,7 +32,7 @@ const CURSO_LABEL: Record<string, string> = {
   }
   <div class="flex flex-col gap-10">
     {
-      secciones.map((seccion) => (
+      sections.map((seccion) => (
         <div class="flex flex-col gap-4">
           {seccion.fotoDestacada && (
             <OptimizedImage
@@ -36,35 +44,31 @@ const CURSO_LABEL: Record<string, string> = {
           )}
           <h3 class="typo-h3">{seccion.titulo}</h3>
           <ul class="flex flex-col divide-y divide-border border-t border-b border-border">
-            {seccion.platos
-              .filter((plato) => plato)
-              .map((plato) => (
-                <li class="flex flex-col gap-1 py-4">
-                  <div class="flex items-baseline justify-between gap-4">
-                    <span class="font-medium text-text">
-                      {plato.nombre}{' '}
-                      {plato.curso && (
-                        <span class="text-xs text-text-muted">
-                          ({CURSO_LABEL[plato.curso] ?? plato.curso})
-                        </span>
-                      )}
-                    </span>
-                    {plato.variantesPrecio?.length > 0 && (
-                      <span class="shrink-0 text-sm text-text-muted">
-                        {plato.variantesPrecio
-                          .map((v: { etiqueta: string; precio: number }) => `${v.etiqueta} ${v.precio}€`)
-                          .join(' · ')}
+            {seccion.platos.map((plato) => (
+              <li class="flex flex-col gap-1 py-4">
+                <div class="flex items-baseline justify-between gap-4">
+                  <span class="font-medium text-text">
+                    {plato.nombre}{' '}
+                    {plato.curso && (
+                      <span class="text-xs text-text-muted">
+                        ({CURSO_LABEL[plato.curso] ?? plato.curso})
                       </span>
                     )}
-                  </div>
-                  {plato.descripcion && (
-                    <p class="text-sm text-text-muted">{plato.descripcion}</p>
+                  </span>
+                  {plato.variantesPrecio?.length > 0 && (
+                    <span class="shrink-0 text-sm text-text-muted">
+                      {plato.variantesPrecio
+                        .map((v) => `${v.etiqueta} ${v.precio}€`)
+                        .join(' · ')}
+                    </span>
                   )}
-                  {plato.alergenos && (
-                    <p class="text-xs text-text-muted italic">Alérgenos: {plato.alergenos}</p>
-                  )}
-                </li>
-              ))}
+                </div>
+                {plato.descripcion && <p class="text-sm text-text-muted">{plato.descripcion}</p>}
+                {plato.alergenos && (
+                  <p class="text-xs text-text-muted italic">Alérgenos: {plato.alergenos}</p>
+                )}
+              </li>
+            ))}
           </ul>
         </div>
       ))

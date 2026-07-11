@@ -15,6 +15,14 @@ const CATEGORIA_LABEL: Record<string, string> = {
   cafe: 'Café',
   coctel: 'Cóctel',
 }
+
+// Filtrado/tipado aquí, no en la plantilla: dentro de un `{}` JSX, `Foo<Bar>`
+// se confunde con una etiqueta — mismo motivo por el que la plantilla no
+// lleva anotaciones de tipo genéricas.
+const sections = secciones.map((seccion) => ({
+  ...seccion,
+  bebidas: seccion.bebidas.filter((bebida) => bebida !== null),
+}))
 ---
 
 <section class="mx-auto max-w-content px-6 py-section" data-reveal>
@@ -27,7 +35,7 @@ const CATEGORIA_LABEL: Record<string, string> = {
   }
   <div class="flex flex-col gap-10">
     {
-      secciones.map((seccion) => (
+      sections.map((seccion) => (
         <div class="flex flex-col gap-4">
           {seccion.fotoDestacada && (
             <OptimizedImage
@@ -39,32 +47,30 @@ const CATEGORIA_LABEL: Record<string, string> = {
           )}
           <h3 class="typo-h3">{seccion.titulo}</h3>
           <ul class="flex flex-col divide-y divide-border border-t border-b border-border">
-            {seccion.bebidas
-              .filter((bebida) => bebida)
-              .map((bebida) => (
-                <li class="flex flex-col gap-1 py-4">
-                  <div class="flex items-baseline justify-between gap-4">
-                    <span class="font-medium text-text">
-                      {bebida.nombre}{' '}
-                      {bebida.categoria && (
-                        <span class="text-xs text-text-muted">
-                          ({CATEGORIA_LABEL[bebida.categoria] ?? bebida.categoria})
-                        </span>
-                      )}
-                    </span>
-                    {bebida.variantesPrecio?.length > 0 && (
-                      <span class="shrink-0 text-sm text-text-muted">
-                        {bebida.variantesPrecio
-                          .map((v: { etiqueta: string; precio: number }) => `${v.etiqueta} ${v.precio}€`)
-                          .join(' · ')}
+            {seccion.bebidas.map((bebida) => (
+              <li class="flex flex-col gap-1 py-4">
+                <div class="flex items-baseline justify-between gap-4">
+                  <span class="font-medium text-text">
+                    {bebida.nombre}{' '}
+                    {bebida.categoria && (
+                      <span class="text-xs text-text-muted">
+                        ({CATEGORIA_LABEL[bebida.categoria] ?? bebida.categoria})
                       </span>
                     )}
-                  </div>
-                  {bebida.descripcion && (
-                    <p class="text-sm text-text-muted">{bebida.descripcion}</p>
+                  </span>
+                  {bebida.variantesPrecio?.length > 0 && (
+                    <span class="shrink-0 text-sm text-text-muted">
+                      {bebida.variantesPrecio
+                        .map((v) => `${v.etiqueta} ${v.precio}€`)
+                        .join(' · ')}
+                    </span>
                   )}
-                </li>
-              ))}
+                </div>
+                {bebida.descripcion && (
+                  <p class="text-sm text-text-muted">{bebida.descripcion}</p>
+                )}
+              </li>
+            ))}
           </ul>
         </div>
       ))

@@ -1,10 +1,20 @@
 ---
 // Versión simplificada de BrowserFrame.astro de ~/projects/astro-components:
-// solo el chrome visual + panel de código colapsable (transición CSS pura,
-// grid-rows 0fr→1fr, sin JS de altura). Sin selector de device/container —
-// fuera de alcance de esta iteración (ver docs/plans/fase-L.md, tarea 69).
+// chrome visual + panel de código colapsable (transición CSS pura, grid-rows
+// 0fr→1fr, sin JS de altura) + selector de dispositivo REAL (desktop/tablet/
+// mobile). "Real" importa: los bloques usan breakpoints de Tailwind del
+// VIEWPORT (p. ej. md:grid-cols-2 en HeroBlock.astro), no container queries,
+// así que encoger un <div> no dispara esos breakpoints — el <slot/> de este
+// componente recibe <iframe>s (uno por variante, ver blocks/[name].astro y
+// blocks/[name]/preview/[variant].astro), cada uno con su propio documento y
+// viewport real. Este componente solo gestiona el ancho (CSS) y la altura
+// (JS, autoajustada al contenido real del iframe) según el dispositivo
+// elegido. Sin el selector de "container size" del original (no aplica aquí).
 import { Code } from 'astro-expressive-code/components'
 import CodeIcon from '../icons/Code.astro'
+import Smartphone from '../icons/Smartphone.astro'
+import Tablet from '../icons/Tablet.astro'
+import Monitor from '../icons/Monitor.astro'
 
 interface Props {
   url: string
@@ -12,39 +22,72 @@ interface Props {
 }
 
 const { url, code } = Astro.props
+
+const devices = {
+  desktop: { label: 'Desktop', icon: Monitor },
+  tablet: { label: 'Tablet', icon: Tablet },
+  mobile: { label: 'Mobile', icon: Smartphone },
+}
 ---
 
-<div class="browser-frame overflow-hidden rounded-xl border border-border shadow-card">
-  <div class="flex items-center gap-4 border-b border-border bg-surface-alt/50 px-4 py-3">
-    <div class="hidden shrink-0 gap-1.5 sm:flex">
-      <div class="h-3 w-3 rounded-full bg-[#FF5F56]"></div>
-      <div class="h-3 w-3 rounded-full bg-[#FFBD2E]"></div>
-      <div class="h-3 w-3 rounded-full bg-[#27C93F]"></div>
+<div class="browser-frame overflow-hidden rounded-xl border border-border shadow-card" data-device="desktop">
+  <div class="flex flex-col gap-3 border-b border-border bg-surface-alt/50 px-4 py-3 md:flex-row md:items-center">
+    <div class="flex flex-1 items-center gap-4">
+      <div class="hidden shrink-0 gap-1.5 sm:flex">
+        <div class="h-3 w-3 rounded-full bg-[#FF5F56]"></div>
+        <div class="h-3 w-3 rounded-full bg-[#FFBD2E]"></div>
+        <div class="h-3 w-3 rounded-full bg-[#27C93F]"></div>
+      </div>
+      <div class="hidden flex-1 rounded-md border border-border bg-surface px-3 py-1 md:block">
+        <span class="typo-small truncate opacity-70 select-none">{url}</span>
+      </div>
     </div>
-    <div class="flex-1 rounded-md border border-border bg-surface px-3 py-1">
-      <span class="typo-small truncate opacity-70 select-none">{url}</span>
+
+    <div class="flex items-center gap-3 self-end md:self-auto">
+      {
+        code && (
+          <button
+            type="button"
+            data-code-toggle
+            title="Ver código"
+            class="flex shrink-0 items-center justify-center rounded-lg border border-border bg-surface p-1.5 text-text-muted transition-colors hover:bg-surface-alt hover:text-primary"
+          >
+            <CodeIcon class="h-4 w-4" />
+          </button>
+        )
+      }
+
+      <div class="flex items-center gap-1 rounded-lg border border-border bg-surface p-1">
+        {
+          Object.entries(devices).map(([key, { label, icon: Icon }]) => (
+            <button
+              type="button"
+              data-device-btn={key}
+              title={label}
+              aria-label={label}
+              aria-selected={key === 'desktop'}
+              class="flex items-center justify-center rounded-md p-1.5 text-text-muted transition-colors hover:bg-surface-alt aria-selected:bg-primary aria-selected:text-white"
+            >
+              <Icon class="h-4 w-4" />
+            </button>
+          ))
+        }
+      </div>
     </div>
-    {
-      code && (
-        <button
-          type="button"
-          data-code-toggle
-          title="Ver código"
-          class="flex shrink-0 items-center justify-center rounded-lg border border-border bg-surface p-1.5 text-text-muted transition-colors hover:bg-surface-alt hover:text-primary"
-        >
-          <CodeIcon class="h-4 w-4" />
-        </button>
-      )
-    }
   </div>
 
-  <div class="browser-stage bg-surface">
-    <slot />
+  <div class="browser-stage-wrapper overflow-x-auto bg-surface-alt/40 p-4">
+    <div class="browser-stage mx-auto bg-surface">
+      <slot />
+    </div>
   </div>
 
   {
     code && (
-      <div class="code-panel grid grid-rows-[0fr] border-t border-border transition-all duration-300 ease-in-out" data-code-panel>
+      <div
+        class="code-panel grid grid-rows-[0fr] border-t border-border transition-all duration-300 ease-in-out"
+        data-code-panel
+      >
         <div class="overflow-hidden">
           <div class="bg-surface-alt p-4 text-xs">
             <Code code={code} lang="astro" />
@@ -55,7 +98,36 @@ const { url, code } = Astro.props
   }
 </div>
 
+<style>
+  .browser-stage {
+    transition:
+      width 0.3s ease,
+      height 0.2s ease;
+  }
+  .browser-stage :global(iframe[data-preview-iframe]) {
+    display: block;
+    width: 100%;
+    min-height: 12rem;
+    border: 0;
+  }
+  /* Desktop con suelo mínimo real (1024px): si la página es más estrecha, el
+     wrapper hace scroll horizontal en vez de encoger el iframe — así el
+     bloque siempre recibe un viewport genuinamente ancho. */
+  .browser-frame[data-device='desktop'] .browser-stage {
+    width: 100%;
+    min-width: 64rem;
+  }
+  .browser-frame[data-device='tablet'] .browser-stage {
+    width: 48rem;
+  }
+  .browser-frame[data-device='mobile'] .browser-stage {
+    width: 23.4375rem;
+  }
+</style>
+
 <script>
+  import { syncIframeHeight } from '../lib/iframe-sync.ts'
+
   function setupBrowserFrames() {
     document.querySelectorAll('.browser-frame').forEach((frame) => {
       if (frame.hasAttribute('data-initialized')) return
@@ -67,6 +139,31 @@ const { url, code } = Astro.props
         const isOpen = panel?.classList.contains('grid-rows-[1fr]')
         panel?.classList.toggle('grid-rows-[1fr]', !isOpen)
         panel?.classList.toggle('grid-rows-[0fr]', isOpen)
+      })
+
+      const iframes = frame.querySelectorAll<HTMLIFrameElement>('iframe[data-preview-iframe]')
+      iframes.forEach((iframe) => {
+        iframe.addEventListener('load', () => syncIframeHeight(iframe))
+      })
+
+      function resyncVisibleIframes() {
+        // Reflow de ancho pendiente: medir en el siguiente frame.
+        requestAnimationFrame(() => {
+          iframes.forEach((iframe) => {
+            if (iframe.offsetParent !== null) syncIframeHeight(iframe)
+          })
+        })
+      }
+
+      const deviceButtons = frame.querySelectorAll<HTMLButtonElement>('[data-device-btn]')
+      deviceButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const device = button.dataset.deviceBtn
+          if (!device) return
+          frame.setAttribute('data-device', device)
+          deviceButtons.forEach((b) => b.setAttribute('aria-selected', String(b === button)))
+          resyncVisibleIframes()
+        })
       })
     })
   }

@@ -1,0 +1,66 @@
+---
+// Página de preview AISLADA (sin header/sidebar): se carga dentro de un
+// <iframe> desde blocks/[name].astro. La razón de ser de este fichero es que
+// los bloques usan breakpoints de Tailwind reales (md:grid-cols-2 en
+// HeroBlock.astro, por ejemplo), NO container queries — así que la única
+// forma de que el selector desktop/tablet/mobile del BrowserFrame simule un
+// viewport de verdad es dándole al bloque su PROPIO documento con su propio
+// ancho, no encogiendo un <div> dentro de la página normal (eso no dispara
+// los breakpoints, solo recorta visualmente el layout de escritorio).
+import { Font } from 'astro:assets'
+import { listBlocks } from '../../../../lib/registry.ts'
+import { getVariantInfo, slugFor, sampleForVariant } from '../../../../lib/variants.ts'
+import { resolveBlockComponent } from '../../../../lib/component.ts'
+import '../../../../../vendor/styles/global.css'
+
+export function getStaticPaths() {
+  return listBlocks().flatMap(([name]) => {
+    const { values } = getVariantInfo(name)
+    return values.map((value) => ({
+      params: { name, variant: slugFor(value) },
+      props: { name, value },
+    }))
+  })
+}
+
+const { name, value } = Astro.props as { name: string; value: string | null }
+const BlockComponent = resolveBlockComponent(name) as any
+const hydrated = sampleForVariant(name, value)
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <script is:inline>
+      ;(() => {
+        function apply() {
+          const stored = localStorage.getItem('theme')
+          const dark = stored
+            ? stored === 'dark'
+            : matchMedia('(prefers-color-scheme: dark)').matches
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+        }
+        apply()
+        // El toggle de tema vive en la página padre (mismo origen): el
+        // evento 'storage' sí llega a este iframe cuando OTRA pestaña o
+        // documento (la página padre) cambia localStorage.
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'theme') apply()
+        })
+      })()
+    </script>
+    <Font cssVariable="--font-inter" preload />
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body>
+    <BlockComponent {...hydrated} />
+  </body>
+</html>
+
+<style is:global>
+  body {
+    margin: 0;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+</style>

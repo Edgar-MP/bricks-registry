@@ -13,7 +13,7 @@ const blocks = listBlocks().sort(([a], [b]) => a.localeCompare(b))
     Cada página muestra un preview en vivo, sus variantes, el código fuente y sus campos.
   </p>
 
-  <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+  <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {
       blocks.map(([name, block]) => (
         <li>

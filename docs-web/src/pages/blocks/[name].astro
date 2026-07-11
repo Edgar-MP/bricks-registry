@@ -7,10 +7,7 @@ import Badge from '../../components/Badge.astro'
 import BrowserFrame from '../../components/BrowserFrame.astro'
 import { listBlocks } from '../../lib/registry.ts'
 import { deriveNames } from '../../lib/derive-names.ts'
-import { hydrateSample } from '../../lib/hydrate.ts'
-import { blockFieldsFor } from '@/schema/introspect.ts'
-import { blockSamples } from '@/schema/blocks/index.ts'
-import type { FieldInfo } from '@/schema/introspect.ts'
+import { getVariantInfo, slugFor } from '../../lib/variants.ts'
 
 export function getStaticPaths() {
   return listBlocks().map(([name, block]) => ({ params: { name }, props: { block } }))
@@ -20,25 +17,7 @@ const { name } = Astro.params as { name: string }
 const { block } = Astro.props as { block: ReturnType<typeof listBlocks>[number][1] }
 const { pascal } = deriveNames(name)
 
-const fields = blockFieldsFor(name)
-const baseSample = blockSamples[name] as Record<string, unknown>
-
-// Selector de variantes: cualquier campo `widget: 'select'` con enum (hoy
-// siempre se llama `variant`, pero no se asume el nombre — ver introspect.ts).
-const variantField = fields.find((f) => f.widget === 'select' && f.enumOptions != null)
-const variantValues = variantField?.enumOptions ?? [null]
-
-// El componente generado (.generated/components/blocks/*.astro) se resuelve
-// por glob porque el nombre depende del bloque de la ruta actual — no hay un
-// import estático fijo posible aquí.
-const blockModules = import.meta.glob('../../../.generated/components/blocks/*.astro', {
-  eager: true,
-}) as Record<string, { default: unknown }>
-const componentEntry = Object.entries(blockModules).find(([modPath]) =>
-  modPath.endsWith(`/${pascal}Block.astro`),
-)
-if (!componentEntry) throw new Error(`no se encontró el componente generado de '${name}'`)
-const BlockComponent = componentEntry[1].default as any
+const { fields, variantField, values: variantValues } = getVariantInfo(name)
 
 // Código fuente real para el panel "ver código" del BrowserFrame — se lee del
 // mismo fichero generado (build time, node:fs), no hardcodeado.
@@ -87,15 +66,15 @@ const command = `bricks add ${name}`
 
     <BrowserFrame url={`bricks-registry/blocks/${name}`} code={source}>
       {
-        variantValues.map((value, i) => {
-          const sample = value ? { ...baseSample, [variantField!.name]: value } : baseSample
-          const hydrated = hydrateSample(sample, fields)
-          return (
-            <div data-variant-panel={value ?? 'default'} hidden={i !== 0}>
-              <BlockComponent {...hydrated} />
-            </div>
-          )
-        })
+        variantValues.map((value, i) => (
+          <div data-variant-panel={slugFor(value)} hidden={i !== 0}>
+            <iframe
+              src={`/blocks/${name}/preview/${slugFor(value)}/`}
+              data-preview-iframe
+              title={`Preview de ${name}${value ? ` (${value})` : ''}`}
+            />
+          </div>
+        ))
       }
     </BrowserFrame>
   </section>
@@ -150,8 +129,13 @@ const command = `bricks add ${name}`
 </DocsLayout>
 
 <script>
+  import { syncIframeHeight } from '../../lib/iframe-sync.ts'
+
   // Selector de variantes: pre-renderizado estático, solo alterna
   // visibilidad — cero JS de framework (mismo espíritu que TabsBlock.astro).
+  // Al mostrar un panel oculto hay que re-sincronizar la altura de su
+  // iframe: un iframe con `hidden` (display:none) no calcula layout interno,
+  // así que la altura leída en su evento 'load' pudo ser 0.
   const buttons = document.querySelectorAll<HTMLButtonElement>('[data-variant-button]')
   const panels = document.querySelectorAll<HTMLElement>('[data-variant-panel]')
 
@@ -160,7 +144,12 @@ const command = `bricks add ${name}`
       const value = button.dataset.variantButton
       buttons.forEach((b) => b.setAttribute('aria-selected', String(b === button)))
       panels.forEach((panel) => {
-        panel.hidden = panel.dataset.variantPanel !== value
+        const wasHidden = panel.hidden
+        panel.hidden = panel.dataset.variantPanel !== (value ?? 'default')
+        if (wasHidden && !panel.hidden) {
+          const iframe = panel.querySelector<HTMLIFrameElement>('iframe')
+          if (iframe) requestAnimationFrame(() => syncIframeHeight(iframe))
+        }
       })
     })
   })

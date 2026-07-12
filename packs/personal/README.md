@@ -30,12 +30,12 @@ equipo").
 Sin agrupación por sección/departamento (decisión: paquete sencillo,
 ampliable después si hace falta — ver "Fuera de alcance").
 
-> Las redes sociales de cada miembro se pintan como enlaces de texto; la foto
-> de cada miembro (`miembro.foto`) sí se pinta en el listado porque es un
-> campo directo de la referencia hidratada a un nivel (a diferencia del caso
-> `plato.foto` en `menu-platos`, que no se pinta por estar anidado dentro de
-> una sección — aquí `miembros` es una referencia directa del bloque, sin
-> sección intermedia).
+> La foto de cada miembro (`miembro.foto`) **no** se pinta en el listado: es
+> un campo `media` dentro de una referencia ya hidratada a un nivel, así que
+> llega como un uuid sin resolver (decisión 13, un solo nivel de hidratación)
+> — mismo límite ya documentado para `plato.foto`/`bebida.foto` en
+> `menu-platos`/`menu-bebidas`. Las redes sociales sí se pintan (son texto
+> plano del propio campo `redSocial.url`, no una referencia anidada).
 
 ## Instalar
 
@@ -92,5 +92,4 @@ con campos `media`/`reference` (`hero`, `image`, `gallery`, `cta-banner`,
 ## Dependencias del proyecto destino
 
 Igual que `hero`/`restaurante`: `packages/schema/src/blocks/base.ts`,
-`apps/front/src/components/OptimizedImage.astro`,
 `apps/front/src/components/ui/Card.astro`.

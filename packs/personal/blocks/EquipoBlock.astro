@@ -1,6 +1,5 @@
 ---
 import type { HydratedEquipoBlock } from '@/lib/content'
-import OptimizedImage from '@/components/OptimizedImage.astro'
 import Card from '@/components/ui/Card.astro'
 
 type Props = Omit<HydratedEquipoBlock, '_uid' | 'type'>
@@ -30,14 +29,6 @@ const team = miembros.filter((miembro) => miembro !== null)
     {
       team.map((miembro) => (
         <Card class="flex flex-col gap-3">
-          {miembro.foto && (
-            <OptimizedImage
-              data-media-field="foto"
-              class="aspect-square w-full rounded-card object-cover"
-              image={miembro.foto}
-              sizes="(min-width: 768px) 33vw, 50vw"
-            />
-          )}
           <div>
             <p class="font-medium text-text">{miembro.nombre}</p>
             <p class="text-sm text-text-muted">{miembro.puesto}</p>

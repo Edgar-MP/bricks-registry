@@ -43,28 +43,12 @@ ampliable después si hace falta — ver "Fuera de alcance").
 pnpm bricks add personal
 ```
 
-Copia los 3 archivos y auto-registra el tipo `miembro` + el bloque `equipo`
-(prettier + `tsc --noEmit` + `astro check`, revierte todo si algo falla).
-
-### Paso manual: vista hidratada del front
-
-El bloque `equipo` tiene un campo `reference`, así que
-`apps/front/src/lib/content.ts` necesita su `HydratedEquipoBlock` a mano
-(igual que `HydratedCartaEmbedBlock`) antes de poder usarlo en el front:
-
-```ts
-import type { EquipoBlock, Miembro } from '@bricks/schema'
-
-type HydratedRef<T> = (T & { id: string; type: string }) | null
-
-export type HydratedEquipoBlock = Omit<EquipoBlock, 'miembros'> & {
-  miembros: HydratedRef<Miembro>[]
-}
-```
-
-Y añadir `HydratedEquipoBlock` a la unión `HydratedBlock` (y a la lista de
-exclusión de `Exclude<Block, ...>`), mismo patrón que
-`HydratedCartaEmbedBlock`/`HydratedHeroBlock` ya existentes.
+Copia los 3 archivos y auto-registra el tipo `miembro` + el bloque `equipo`,
+incluida su hidratación en `apps/front/src/lib/content.ts`
+(`HydratedEquipoBlock`, generada automáticamente por tener `miembros` un
+campo `reference` directo — ver `packages/cli/docs/PACKS.md`, "Hidratación
+automática de content.ts"). Prettier + `tsc --noEmit` + `astro check`
+validan todo; revierte si algo falla. Sin pasos manuales.
 
 ## Fuera de alcance (v1)
 
@@ -82,12 +66,8 @@ exclusión de `Exclude<Block, ...>`), mismo patrón que
 pnpm bricks remove personal --force
 ```
 
-Como `equipo` usa `reference`, primero hay que revertir a mano el
-`HydratedEquipoBlock` añadido en `content.ts` (la unión `Block` lo sigue
-importando desde `@bricks/schema` hasta que se borre, y `astro check`
-fallará si no se hace) — mismo límite ya documentado para cualquier bloque
-con campos `media`/`reference` (`hero`, `image`, `gallery`, `cta-banner`,
-`carta-embed`).
+Se desinstala solo, incluida la reversión de `HydratedEquipoBlock` en
+`content.ts` — sin pasos manuales.
 
 ## Dependencias del proyecto destino
 

@@ -84,20 +84,26 @@ pnpm bricks add restaurante
 Copia los 10 archivos y auto-registra los 3 tipos + 3 bloques (prettier +
 `tsc --noEmit` + `astro check`, revierte todo si algo falla).
 
-### Paso manual: vistas hidratadas del front
+### Hidratación de `content.ts`
 
-Los 3 bloques tienen campos `reference`, así que `apps/front/src/lib/content.ts`
-necesita sus `Hydrated*Block` a mano (igual que `HydratedHeroBlock`) antes de
-poder usarlos en el front:
+`carta-embed` tiene un campo `reference` DIRECTO (`carta`), así que
+`bricks add` genera su `HydratedCartaEmbedBlock` en
+`apps/front/src/lib/content.ts` automáticamente — sin paso manual (ver
+`packages/cli/docs/PACKS.md`, "Hidratación automática de content.ts").
+
+`menu-platos`/`menu-bebidas` SÍ necesitan el paso manual: su campo
+`secciones` es un array de sub-objeto (`widget: 'array'`) con `platos`/
+`bebidas`/`fotoDestacada` anidados dentro — demasiado variable para
+generarlo de forma fiable, así que `bricks add` avisa al terminar y hay que
+añadirlo a mano:
 
 ```ts
-import type { CartaEmbedBlock, MenuPlatosBlock, MenuBebidasBlock, Carta, Plato, Bebida } from '@bricks/schema'
+import type { MenuPlatosBlock, MenuBebidasBlock, Plato, Bebida } from '@bricks/schema'
 
-type HydratedRef<T> = (T & { id: string; type: string }) | null
+// HydratedRef<T> ya existe en content.ts si carta-embed (u otro bloque con
+// reference) se instaló antes — si no, añadir también:
+// type HydratedRef<T> = (T & { id: string; type: string }) | null
 
-export type HydratedCartaEmbedBlock = Omit<CartaEmbedBlock, 'carta'> & {
-  carta: HydratedRef<Carta>
-}
 export type HydratedMenuPlatosBlock = Omit<MenuPlatosBlock, 'secciones'> & {
   secciones: (Omit<MenuPlatosBlock['secciones'][number], 'fotoDestacada' | 'platos'> & {
     fotoDestacada?: HydratedAsset | null
@@ -112,9 +118,9 @@ export type HydratedMenuBebidasBlock = Omit<MenuBebidasBlock, 'secciones'> & {
 }
 ```
 
-Y añadir los 3 tipos a la unión `HydratedBlock` (y a la lista de exclusión de
-`Exclude<Block, ...>`), mismo patrón que `HydratedHeroBlock`/
-`HydratedGalleryBlock` ya existentes.
+Y añadir esos 2 tipos a la unión `HydratedBlock` (y a la lista de exclusión
+de `Exclude<Block, ...>`), mismo patrón que `HydratedCartaEmbedBlock` (ya
+generado) o `HydratedGalleryBlock`.
 
 ## Fuera de alcance (v1)
 
@@ -133,11 +139,13 @@ Y añadir los 3 tipos a la unión `HydratedBlock` (y a la lista de exclusión de
 pnpm bricks remove restaurante --force
 ```
 
-Como los 3 bloques usan `reference`, primero hay que revertir a mano los
-`Hydrated*Block` añadidos en `content.ts` (la unión `Block` los sigue
-importando desde `@bricks/schema` hasta que se borren, y `astro check`
-fallará si no se hace) — mismo límite ya documentado para cualquier bloque
-con campos `media`/`reference` (`hero`, `image`, `gallery`, `cta-banner`).
+`carta-embed` se desinstala solo (su `HydratedCartaEmbedBlock` se quita
+automáticamente de `content.ts`). `menu-platos`/`menu-bebidas` NO: al tener
+su hidratación manual (secciones anidadas, ver arriba), primero hay que
+revertir a mano sus `Hydrated*Block` en `content.ts` (la unión `Block` los
+sigue importando desde `@bricks/schema` hasta que se borren, y `astro check`
+fallará si no se hace) — mismo límite de siempre para lo que no se puede
+generar automáticamente.
 
 ## Dependencias del proyecto destino
 

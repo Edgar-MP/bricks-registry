@@ -95,7 +95,7 @@
     },
     "personal": {
       "kind": "pack",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Equipo/personal de una empresa: ficha de persona y bloque de listado.",
       "category": "general",
       "files": [
@@ -110,6 +110,10 @@
         {
           "from": "packs/personal/blocks/EquipoBlock.astro",
           "to": "apps/front/src/components/blocks/EquipoBlock.astro"
+        },
+        {
+          "from": "packs/personal/admin/MiembroCardPreview.tsx",
+          "to": "apps/admin/src/components/packages/personal/MiembroCardPreview.tsx"
         }
       ],
       "contentTypes": [
@@ -119,7 +123,11 @@
           "schemaExport": "miembroSchema",
           "kind": "collection",
           "routing": null,
-          "labelField": "nombre"
+          "labelField": "nombre",
+          "adminPreview": {
+            "component": "MiembroCardPreview",
+            "to": "apps/admin/src/components/packages/personal/MiembroCardPreview.tsx"
+          }
         }
       ],
       "blocks": [

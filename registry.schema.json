@@ -54,7 +54,23 @@
                 "schemaExport": { "type": "string" },
                 "kind": { "type": "string", "enum": ["collection", "single"] },
                 "routing": { "type": ["string", "null"] },
-                "labelField": { "type": "string" }
+                "labelField": { "type": "string" },
+                "adminPreview": {
+                  "type": "object",
+                  "description": "Opcional: componente de React que previsualiza en vivo una entrada de este tipo en el editor del admin (tipos sin routing propio que sí tienen forma visual, p. ej. una ficha de persona) — se registra vía apps/admin/src/form/packages/index.ts, ver packages/cli/lib/register-admin-preview.js.",
+                  "required": ["component", "to"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "component": {
+                      "type": "string",
+                      "description": "Nombre del export por defecto del componente."
+                    },
+                    "to": {
+                      "type": "string",
+                      "description": "Ruta relativa dentro del proyecto destino — debe coincidir con el `to` de la entrada correspondiente en `files`."
+                    }
+                  }
+                }
               }
             }
           },

@@ -92,6 +92,39 @@
         { "type": "menu-platos", "description": "Listado de platos por secciones." },
         { "type": "menu-bebidas", "description": "Listado de bebidas por secciones." }
       ]
+    },
+    "personal": {
+      "kind": "pack",
+      "version": "1.0.0",
+      "description": "Equipo/personal de una empresa: ficha de persona y bloque de listado.",
+      "category": "general",
+      "files": [
+        {
+          "from": "packs/personal/types/miembro.ts",
+          "to": "packages/schema/src/types/miembro.ts"
+        },
+        {
+          "from": "packs/personal/blocks/equipo.ts",
+          "to": "packages/schema/src/blocks/equipo.ts"
+        },
+        {
+          "from": "packs/personal/blocks/EquipoBlock.astro",
+          "to": "apps/front/src/components/blocks/EquipoBlock.astro"
+        }
+      ],
+      "contentTypes": [
+        {
+          "type": "miembro",
+          "schemaModule": "miembro",
+          "schemaExport": "miembroSchema",
+          "kind": "collection",
+          "routing": null,
+          "labelField": "nombre"
+        }
+      ],
+      "blocks": [
+        { "type": "equipo", "description": "Lista el personal de la empresa (equipo)." }
+      ]
     }
   }
 }

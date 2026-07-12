@@ -1,0 +1,64 @@
+---
+import type { HydratedEquipoBlock } from '@/lib/content'
+import OptimizedImage from '@/components/OptimizedImage.astro'
+import Card from '@/components/ui/Card.astro'
+
+type Props = Omit<HydratedEquipoBlock, '_uid' | 'type'>
+
+const { titulo, miembros } = Astro.props
+
+const RED_LABEL: Record<string, string> = {
+  linkedin: 'LinkedIn',
+  twitter: 'Twitter',
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  web: 'Web',
+}
+
+const team = miembros.filter((miembro) => miembro !== null)
+---
+
+<section class="mx-auto max-w-content px-6 py-section" data-reveal>
+  {
+    titulo && (
+      <h2 data-field="titulo" class="typo-h2 mb-6 text-balance">
+        {titulo}
+      </h2>
+    )
+  }
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+    {
+      team.map((miembro) => (
+        <Card class="flex flex-col gap-3">
+          {miembro.foto && (
+            <OptimizedImage
+              data-media-field="foto"
+              class="aspect-square w-full rounded-card object-cover"
+              image={miembro.foto}
+              sizes="(min-width: 768px) 33vw, 50vw"
+            />
+          )}
+          <div>
+            <p class="font-medium text-text">{miembro.nombre}</p>
+            <p class="text-sm text-text-muted">{miembro.puesto}</p>
+          </div>
+          {miembro.bio && <p class="text-sm text-text-muted">{miembro.bio}</p>}
+          {(miembro.email || miembro.telefono) && (
+            <p class="text-sm text-text-muted">
+              {[miembro.email, miembro.telefono].filter(Boolean).join(' · ')}
+            </p>
+          )}
+          {miembro.redesSociales?.length > 0 && (
+            <div class="flex flex-wrap gap-3">
+              {miembro.redesSociales.map((red) => (
+                <a href={red.url} class="text-sm text-link hover:underline">
+                  {RED_LABEL[red.red] ?? red.red}
+                </a>
+              ))}
+            </div>
+          )}
+        </Card>
+      ))
+    }
+  </div>
+</section>

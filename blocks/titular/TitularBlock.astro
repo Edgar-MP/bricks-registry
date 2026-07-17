@@ -1,0 +1,35 @@
+---
+import type { TitularBlock } from '@bricks/schema'
+
+type Props = Omit<TitularBlock, '_uid' | 'type'>
+
+const { kicker, text, variant } = Astro.props
+---
+
+{
+  variant === 'inverted' ? (
+    <section class="bg-text px-6 py-section text-surface" data-reveal>
+      <div class="mx-auto max-w-content">
+        {kicker && (
+          <p data-field="kicker" class="typo-overline text-surface/70">
+            {kicker}
+          </p>
+        )}
+        <p data-field="text" class="typo-h1 mt-2 text-surface">
+          {text}
+        </p>
+      </div>
+    </section>
+  ) : (
+    <section class="mx-auto max-w-content px-6 py-section" data-reveal>
+      {kicker && (
+        <p data-field="kicker" class="typo-overline">
+          {kicker}
+        </p>
+      )}
+      <p data-field="text" class="typo-h1 mt-2">
+        {text}
+      </p>
+    </section>
+  )
+}

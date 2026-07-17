@@ -27,6 +27,35 @@
         }
       ]
     },
+    "photo-grid": {
+      "kind": "block",
+      "version": "1.0.0",
+      "description": "Galería editorial brutalista con pie de foto y crédito siempre visibles, pensada para foto-ensayos.",
+      "category": "editorial",
+      "files": [
+        {
+          "from": "blocks/photo-grid/schema.ts",
+          "to": "packages/schema/src/blocks/photo-grid.ts"
+        },
+        {
+          "from": "blocks/photo-grid/PhotoGridBlock.astro",
+          "to": "apps/front/src/components/blocks/PhotoGridBlock.astro"
+        }
+      ]
+    },
+    "titular": {
+      "kind": "block",
+      "version": "1.0.0",
+      "description": "Titular de sección brutalista para romper tramos de texto, variantes plain/inverted.",
+      "category": "editorial",
+      "files": [
+        { "from": "blocks/titular/schema.ts", "to": "packages/schema/src/blocks/titular.ts" },
+        {
+          "from": "blocks/titular/TitularBlock.astro",
+          "to": "apps/front/src/components/blocks/TitularBlock.astro"
+        }
+      ]
+    },
     "tabs": {
       "kind": "block",
       "version": "1.0.0",

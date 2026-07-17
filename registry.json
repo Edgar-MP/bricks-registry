@@ -14,6 +14,19 @@
         }
       ]
     },
+    "quote": {
+      "kind": "block",
+      "version": "1.0.0",
+      "description": "Cita o pull-quote para separar tramos de texto, variantes plain/boxed.",
+      "category": "editorial",
+      "files": [
+        { "from": "blocks/quote/schema.ts", "to": "packages/schema/src/blocks/quote.ts" },
+        {
+          "from": "blocks/quote/QuoteBlock.astro",
+          "to": "apps/front/src/components/blocks/QuoteBlock.astro"
+        }
+      ]
+    },
     "tabs": {
       "kind": "block",
       "version": "1.0.0",
@@ -92,6 +105,29 @@
         { "type": "menu-platos", "description": "Listado de platos por secciones." },
         { "type": "menu-bebidas", "description": "Listado de bebidas por secciones." }
       ]
+    },
+    "reportajes": {
+      "kind": "pack",
+      "version": "1.0.0",
+      "description": "Foto-ensayos/reportajes con routing propia, separados de las noticias.",
+      "category": "verticales",
+      "files": [
+        {
+          "from": "packs/reportajes/types/reportaje.ts",
+          "to": "packages/schema/src/types/reportaje.ts"
+        }
+      ],
+      "contentTypes": [
+        {
+          "type": "reportaje",
+          "schemaModule": "reportaje",
+          "schemaExport": "reportajeSchema",
+          "kind": "collection",
+          "routing": "/reportajes/:slug",
+          "labelField": "title"
+        }
+      ],
+      "blocks": []
     },
     "personal": {
       "kind": "pack",

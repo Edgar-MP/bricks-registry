@@ -1,0 +1,25 @@
+---
+import type { QuoteBlock } from '@bricks/schema'
+
+type Props = Omit<QuoteBlock, '_uid' | 'type'>
+
+const { text, author, variant } = Astro.props
+
+const wrapper = {
+  plain: 'rich-prose',
+  boxed: 'border-2 border-border bg-primary p-6 text-primary-contrast md:p-8',
+}[variant]
+---
+
+<figure class={wrapper}>
+  <blockquote data-field="text" class={variant === 'boxed' ? 'typo-h3' : 'typo-quote'}>
+    {text}
+  </blockquote>
+  {
+    author && (
+      <figcaption data-field="author" class="typo-overline mt-3 not-italic">
+        {author}
+      </figcaption>
+    )
+  }
+</figure>

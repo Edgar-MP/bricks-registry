@@ -14,6 +14,22 @@
         }
       ]
     },
+    "hero-editorial": {
+      "kind": "block",
+      "version": "1.0.0",
+      "description": "Hero de portada editorial: caja de color a todo ancho + imagen destacada con efecto B/N a color.",
+      "category": "cabeceras",
+      "files": [
+        {
+          "from": "blocks/hero-editorial/schema.ts",
+          "to": "packages/schema/src/blocks/hero-editorial.ts"
+        },
+        {
+          "from": "blocks/hero-editorial/HeroEditorialBlock.astro",
+          "to": "apps/front/src/components/blocks/HeroEditorialBlock.astro"
+        }
+      ]
+    },
     "quote": {
       "kind": "block",
       "version": "1.0.0",

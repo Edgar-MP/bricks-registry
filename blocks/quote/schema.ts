@@ -5,11 +5,10 @@ export const quoteBlock = blockBase.extend({
   type: z.literal('quote'),
   text: z.string().meta({ widget: 'textarea', label: 'Cita', localized: true }),
   author: z.string().optional().meta({ widget: 'text', label: 'Autor/fuente', localized: true }),
-  // 'plain' = cita discreta (como .rich-prose blockquote); 'boxed' = destacado
-  // editorial a toda anchura, pensado para pull-quotes de artículo (ver
-  // README: bloque pensado para separar tramos largos de texto, no para
-  // sustituir la cita simple del rich text).
-  variant: z.enum(['plain', 'boxed']).meta({ widget: 'select', label: 'Variante' }),
+  // 'pull' = pull-quote editorial del diseño Claude Design (comilla amarilla
+  // Anton gigante + titular Anton); 'boxed' = caja amarilla a toda anchura;
+  // 'plain' = cita discreta (como .rich-prose blockquote).
+  variant: z.enum(['pull', 'boxed', 'plain']).meta({ widget: 'select', label: 'Variante' }),
 })
 
 export type QuoteBlock = z.infer<typeof quoteBlock>

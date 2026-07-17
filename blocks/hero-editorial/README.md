@@ -1,12 +1,10 @@
 # hero-editorial
 
-Hero de portada brutalista (fork Gasteizko Jaiak, diseño Stitch real):
-antetítulo + titular + entradilla + crédito de foto en una caja de color a
-todo ancho, con la imagen destacada FUERA de la caja, a todo ancho, debajo —
-efecto blanco y negro → color al pasar el ratón. Distinto del `hero` core
-(centrado/split, imagen de fondo o al lado): este es el hero real usado en
-la home del diseño, pensado para portadas editoriales, no para landing pages
-genéricas.
+Hero de portada brutalista (fork Gasteizko Jaiak, diseño Claude Design): dos
+columnas a igual altura — IZQUIERDA caja de color con antetítulo + titular +
+entradilla + crédito de foto; DERECHA imagen a sangre con efecto blanco y
+negro → color al pasar el ratón. Distinto del `hero` core (centrado/split):
+este es el hero real de la home del diseño, para portadas editoriales.
 
 ## Campos
 

@@ -2,12 +2,10 @@ import { z } from 'zod'
 import { blockBase } from './base.ts'
 import { linkValue } from '../link-field.ts'
 
-// Hero editorial brutalista (fork Gasteizko Jaiak, diseño Stitch): DISTINTO
-// del `hero` core (centrado/split, un único bloque con la imagen de fondo o
-// al lado). Este replica exactamente el hero del mockup real: antetítulo +
-// titular + entradilla + crédito de foto en una caja de color a todo ancho,
-// y la imagen destacada FUERA de la caja, a todo ancho, debajo — con efecto
-// blanco y negro → color al pasar el ratón (detalle del diseño original).
+// Hero editorial brutalista (fork Gasteizko Jaiak, diseño Claude Design 1:1):
+// DISTINTO del `hero` core (centrado/split). Dos columnas a igual altura:
+// IZQUIERDA caja amarilla con antetítulo + titular + entradilla + crédito de
+// foto; DERECHA imagen a sangre con efecto blanco y negro → color al hover.
 export const heroEditorialBlock = blockBase.extend({
   type: z.literal('hero-editorial'),
   kicker: z

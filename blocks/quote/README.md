@@ -1,10 +1,9 @@
 # quote
 
-Cita o pull-quote para separar tramos largos de texto. Dos variantes:
-`plain` (discreta, mismo estilo que una cita del rich text) y `boxed`
-(destacado editorial a toda anchura, pensado para resaltar una frase entre
-bloques de texto/imagen — no para sustituir una cita corta dentro de un
-párrafo, que ya cubre el rich text).
+Cita o pull-quote para separar tramos largos de texto. Tres variantes:
+`pull` (comilla amarilla Anton gigante + titular Anton, del diseño Claude
+Design), `boxed` (caja de color a toda anchura) y `plain` (discreta, como una
+cita del rich text).
 
 ## Campos
 

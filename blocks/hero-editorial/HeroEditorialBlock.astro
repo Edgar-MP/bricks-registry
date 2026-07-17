@@ -6,57 +6,76 @@ type Props = Omit<HydratedHeroEditorialBlock, '_uid' | 'type'>
 
 const { kicker, title, lead, photoCredit, image, link } = Astro.props
 const newTab = link?.target === 'new-tab'
-const Wrapper = link?.url ? 'a' : 'div'
 ---
 
-<section class="flex flex-col" data-reveal>
-  <Wrapper
-    href={link?.url}
-    target={newTab ? '_blank' : undefined}
-    rel={newTab ? 'noopener noreferrer' : undefined}
-    class="block w-full bg-primary p-6 text-primary-contrast md:p-12"
-  >
-    <div class="max-w-5xl">
-      {
-        kicker && (
-          // Mismas propiedades que `typo-overline` pero SIN su color fijo
-          // (text-muted pelearía con text-primary-contrast/70 aquí: misma
-          // especificidad, orden de generación no garantizado — ver nota en
-          // ui/Card.astro sobre este mismo problema).
-          <span
-            data-field="kicker"
-            class="mb-4 block text-sm font-semibold uppercase tracking-[0.1em] text-primary-contrast/70"
-          >
-            {kicker}
-          </span>
-        )
-      }
-      <h2 data-field="title" class="typo-hero text-balance">{title}</h2>
-      {
-        lead && (
-          <p data-field="lead" class="typo-body-lg mt-6 max-w-xl font-bold uppercase leading-tight">
-            {lead}
-            {photoCredit && (
-              <span data-field="photoCredit" class="mt-2 block font-normal normal-case opacity-70">
-                {photoCredit}
-              </span>
-            )}
-          </p>
-        )
-      }
-    </div>
-  </Wrapper>
-  {
-    image && (
-      <div class="aspect-video w-full overflow-hidden">
+<section class="hero-editorial" style="display:grid; grid-template-columns:1fr 1fr; align-items:stretch;">
+  <div style="background:var(--color-primary); color:var(--color-primary-contrast); padding:48px 40px;">
+    {
+      kicker && (
+        <span
+          data-field="kicker"
+          style="font-weight:700; font-size:13px; letter-spacing:0.3em; text-transform:uppercase; display:block; margin-bottom:20px;"
+        >
+          {kicker}
+        </span>
+      )
+    }
+    {
+      link?.url ? (
+        <a
+          href={link.url}
+          target={newTab ? '_blank' : undefined}
+          rel={newTab ? 'noopener noreferrer' : undefined}
+          class="disp"
+          style="display:block; font-size:clamp(40px,4.5vw,76px); margin:0 0 28px; color:var(--color-primary-contrast);"
+          data-field="title"
+        >
+          {title}
+        </a>
+      ) : (
+        <h2 class="disp" data-field="title" style="font-size:clamp(40px,4.5vw,76px); margin:0 0 28px;">
+          {title}
+        </h2>
+      )
+    }
+    {
+      lead && (
+        <p
+          data-field="lead"
+          style="font-weight:700; font-size:14px; text-transform:uppercase; line-height:1.25; max-width:420px; margin:0;"
+        >
+          {lead}
+          {photoCredit && (
+            <span data-field="photoCredit" style="display:block; margin-top:8px; opacity:.55;">
+              {photoCredit}
+            </span>
+          )}
+        </p>
+      )
+    }
+  </div>
+  <div style="overflow:hidden;">
+    {
+      image ? (
         <OptimizedImage
           data-media-field="image"
-          class="h-full w-full object-cover grayscale transition-all duration-700 hover:grayscale-0"
+          class="gs"
           image={image}
           eager
-          sizes="100vw"
+          sizes="(min-width: 48rem) 50vw, 100vw"
+          style="width:100%; height:100%; object-fit:cover; display:block;"
         />
-      </div>
-    )
-  }
+      ) : (
+        <div style="width:100%; height:100%; min-height:320px; background:var(--color-surface-alt);" aria-hidden="true" />
+      )
+    }
+  </div>
 </section>
+
+<style>
+  @media (max-width: 48rem) {
+    .hero-editorial {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>

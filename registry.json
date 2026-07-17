@@ -7,7 +7,10 @@
       "description": "Cabecera de página: título, subtítulo, imagen de fondo y CTA.",
       "category": "cabeceras",
       "files": [
-        { "from": "blocks/hero/schema.ts", "to": "packages/schema/src/blocks/hero.ts" },
+        {
+          "from": "blocks/hero/schema.ts",
+          "to": "packages/schema/src/blocks/hero.ts"
+        },
         {
           "from": "blocks/hero/HeroBlock.astro",
           "to": "apps/front/src/components/blocks/HeroBlock.astro"
@@ -16,8 +19,8 @@
     },
     "hero-editorial": {
       "kind": "block",
-      "version": "1.0.0",
-      "description": "Hero de portada editorial: caja de color a todo ancho + imagen destacada con efecto B/N a color.",
+      "version": "1.1.0",
+      "description": "Hero de portada editorial a 2 columnas: caja de color con titular + imagen con efecto B/N a color.",
       "category": "cabeceras",
       "files": [
         {
@@ -32,11 +35,14 @@
     },
     "quote": {
       "kind": "block",
-      "version": "1.0.0",
-      "description": "Cita o pull-quote para separar tramos de texto, variantes plain/boxed.",
+      "version": "1.1.0",
+      "description": "Cita o pull-quote para separar tramos de texto, variantes pull/boxed/plain.",
       "category": "editorial",
       "files": [
-        { "from": "blocks/quote/schema.ts", "to": "packages/schema/src/blocks/quote.ts" },
+        {
+          "from": "blocks/quote/schema.ts",
+          "to": "packages/schema/src/blocks/quote.ts"
+        },
         {
           "from": "blocks/quote/QuoteBlock.astro",
           "to": "apps/front/src/components/blocks/QuoteBlock.astro"
@@ -65,7 +71,10 @@
       "description": "Titular de sección brutalista para romper tramos de texto, variantes plain/inverted.",
       "category": "editorial",
       "files": [
-        { "from": "blocks/titular/schema.ts", "to": "packages/schema/src/blocks/titular.ts" },
+        {
+          "from": "blocks/titular/schema.ts",
+          "to": "packages/schema/src/blocks/titular.ts"
+        },
         {
           "from": "blocks/titular/TitularBlock.astro",
           "to": "apps/front/src/components/blocks/TitularBlock.astro"
@@ -78,7 +87,10 @@
       "description": "Pestañas con contenido richtext por pestaña, variantes underline/pill.",
       "category": "interactivos",
       "files": [
-        { "from": "blocks/tabs/schema.ts", "to": "packages/schema/src/blocks/tabs.ts" },
+        {
+          "from": "blocks/tabs/schema.ts",
+          "to": "packages/schema/src/blocks/tabs.ts"
+        },
         {
           "from": "blocks/tabs/TabsBlock.astro",
           "to": "apps/front/src/components/blocks/TabsBlock.astro"
@@ -91,9 +103,18 @@
       "description": "Vertical de restaurante: cartas, platos y bebidas.",
       "category": "verticales",
       "files": [
-        { "from": "packs/restaurante/types/carta.ts", "to": "packages/schema/src/types/carta.ts" },
-        { "from": "packs/restaurante/types/plato.ts", "to": "packages/schema/src/types/plato.ts" },
-        { "from": "packs/restaurante/types/bebida.ts", "to": "packages/schema/src/types/bebida.ts" },
+        {
+          "from": "packs/restaurante/types/carta.ts",
+          "to": "packages/schema/src/types/carta.ts"
+        },
+        {
+          "from": "packs/restaurante/types/plato.ts",
+          "to": "packages/schema/src/types/plato.ts"
+        },
+        {
+          "from": "packs/restaurante/types/bebida.ts",
+          "to": "packages/schema/src/types/bebida.ts"
+        },
         {
           "from": "packs/restaurante/blocks/carta-embed.ts",
           "to": "packages/schema/src/blocks/carta-embed.ts"
@@ -146,9 +167,18 @@
         }
       ],
       "blocks": [
-        { "type": "carta-embed", "description": "Incrusta el resumen de una carta." },
-        { "type": "menu-platos", "description": "Listado de platos por secciones." },
-        { "type": "menu-bebidas", "description": "Listado de bebidas por secciones." }
+        {
+          "type": "carta-embed",
+          "description": "Incrusta el resumen de una carta."
+        },
+        {
+          "type": "menu-platos",
+          "description": "Listado de platos por secciones."
+        },
+        {
+          "type": "menu-bebidas",
+          "description": "Listado de bebidas por secciones."
+        }
       ]
     },
     "reportajes": {
@@ -212,7 +242,10 @@
         }
       ],
       "blocks": [
-        { "type": "equipo", "description": "Lista el personal de la empresa (equipo)." }
+        {
+          "type": "equipo",
+          "description": "Lista el personal de la empresa (equipo)."
+        }
       ]
     }
   }

@@ -4,22 +4,46 @@ import type { QuoteBlock } from '@bricks/schema'
 type Props = Omit<QuoteBlock, '_uid' | 'type'>
 
 const { text, author, variant } = Astro.props
-
-const wrapper = {
-  plain: 'rich-prose',
-  boxed: 'border-2 border-border bg-primary p-6 text-primary-contrast md:p-8',
-}[variant]
 ---
 
-<figure class={wrapper}>
-  <blockquote data-field="text" class={variant === 'boxed' ? 'typo-h3' : 'typo-quote'}>
-    {text}
-  </blockquote>
-  {
-    author && (
-      <figcaption data-field="author" class="typo-overline mt-3 not-italic">
-        {author}
-      </figcaption>
-    )
-  }
-</figure>
+{
+  variant === 'pull' ? (
+    /* Pull-quote del diseño Claude Design: comilla amarilla Anton gigante +
+       titular Anton, en fila. */
+    <figure style="margin:0;">
+      <div style="display:flex; align-items:flex-start; gap:16px;">
+        <span class="disp" style="font-size:64px; color:var(--color-primary); line-height:.6;" aria-hidden="true">
+          &ldquo;
+        </span>
+        <blockquote data-field="text" class="disp" style="font-size:clamp(28px,3.2vw,44px); margin:0;">
+          {text}
+        </blockquote>
+      </div>
+      {author && (
+        <figcaption data-field="author" class="typo-overline" style="margin-top:12px;">
+          {author}
+        </figcaption>
+      )}
+    </figure>
+  ) : variant === 'boxed' ? (
+    <figure style="margin:0; border:2px solid var(--color-border); background:var(--color-primary); color:var(--color-primary-contrast); padding:24px;">
+      <blockquote data-field="text" class="disp" style="font-size:clamp(24px,2.6vw,38px); margin:0;">
+        {text}
+      </blockquote>
+      {author && (
+        <figcaption data-field="author" style="margin-top:12px; font-weight:900; font-size:12px; text-transform:uppercase; letter-spacing:0.1em;">
+          {author}
+        </figcaption>
+      )}
+    </figure>
+  ) : (
+    <figure class="rich-prose" style="margin:0;">
+      <blockquote data-field="text" class="typo-quote">{text}</blockquote>
+      {author && (
+        <figcaption data-field="author" class="typo-overline" style="margin-top:12px;">
+          {author}
+        </figcaption>
+      )}
+    </figure>
+  )
+}
